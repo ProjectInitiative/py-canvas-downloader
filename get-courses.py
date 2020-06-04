@@ -60,7 +60,7 @@ def main():
                                 print ('\t\t File: skipping ' + filename + " already exists")
                             else:
                                 print('\t\t File: ' + filename)
-                                write_file(item['url'], folder_path, filename)
+                                write_file(item['url'], folder_path, format_filename(filename))
     
                 
 def pretty(d, indent=0):

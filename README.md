@@ -55,6 +55,8 @@ Future functionality (not guaranteed):
   - Retains module structure
   - Download quiz content (HTML)
   - API rate limiting
+  - Fully interactive CLI application to guide the user through process
+  - Cross platform port to compiled language so no "coding" experience is required
 
 If the program crashes or you stop it prematurely, the program should pick back up where it left off. 
 
