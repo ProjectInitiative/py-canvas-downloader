@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import json
 import string
 
-dotenv_path = join(dirname(__file__), '.env')
+dotenv_path = join(dirname(__file__), 'variables.env')
 load_dotenv(dotenv_path)
 
 access_token = os.environ.get('ACCESS_TOKEN')

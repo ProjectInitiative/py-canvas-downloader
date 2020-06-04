@@ -13,7 +13,7 @@ To download as much course data as possible before losing access to my universit
 
 ## Setup
 
-1. To use this script you will need to create a **.env** file in the root directory of the repository that has the following information:
+1. To use this script you will need to create a file called **variables.env** in the root directory of the repository that has the following information:
 
 ```bash
 ACCESS_TOKEN=<very-long-access-token>
