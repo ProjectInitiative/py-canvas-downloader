@@ -44,7 +44,18 @@ python ./get-courses.py
 > NOTE: **I HAVE YET TO IMPLEMENT PROPER API RATE LIMITING! RUN AT YOUR OWN RISK!**
 > Since the program does not make any parallel API calls, I have not experienced any API quota locks, **BUT** there is still a risk that you lock yourself out of your account and will need to contact IT!
 
-This script is a quick and dirty implementation focusing on trying to get as much data as possible before losing access to the university Canvas site. Program has been tested on Windows 10 and Ubuntu 20.04.
+This script is a quick and dirty implementation focusing on trying to get as much data as possible before losing access to the university Canvas site. If the program crashes or you stop it prematurely, the program should pick back up where it left off. 
+
+### Platforms tested
+
+  - Windows 10
+  - Ubuntu 20.04
+
+### Python package info
+
+If you would like to install the Python packages manually, the required packages are located in the **Pipfile** under the `[packages]` tag, though the `pipenv` method is preferred.
+
+### Futurework
 
 Currently functionality:
   - Downloads all files uploaded by professors and TAs 
@@ -58,7 +69,6 @@ Future functionality (not guaranteed):
   - Fully interactive CLI application to guide the user through process
   - Cross platform port to compiled language so no "coding" experience is required
 
-If the program crashes or you stop it prematurely, the program should pick back up where it left off. 
 
 ## Special Thanks
 
