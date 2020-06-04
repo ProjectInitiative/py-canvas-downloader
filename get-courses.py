@@ -56,7 +56,7 @@ def main():
                         
                         for item in folder['files']:
                             filename = item['display_name']
-                            if os.path.isfile(os.path.join(folder_path, filename)):
+                            if os.path.isfile(os.path.join(folder_path, format_filename(filename))):
                                 print ('\t\t File: skipping ' + filename + " already exists")
                             else:
                                 print('\t\t File: ' + filename)
