@@ -8,31 +8,32 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 import json
 import string
+from canvas import Canvas
 
 dotenv_path = join(dirname(__file__), 'variables.env')
 load_dotenv(dotenv_path)
 
 access_token = os.environ.get('ACCESS_TOKEN')
+
 headers = {'Authorization': str('Bearer ' + access_token)}
-base_url = ''.join([os.environ.get('CANVAS_LMS_SERVER'), '/api/'])
-api_version = 'v1/'
+base_url = ''.join([os.environ.get('CANVAS_LMS_SERVER'), '/api/v1/'])
 
 root_path = os.path.join(os.getcwd(), 'courses')
 
 def main():
 
-    url = base_url + api_version + 'courses'
+    canvas = Canvas(base_url, access_token=access_token)
 
     # get all courses
-    courses_list = get_paginated(url)
+    courses_list = canvas.get_courses()
 
     for course in courses_list:
         if 'name' in course.keys() and 'id' in course:
             print('Course: ' + course['name'])
             
             # get all modules and folders in each course
-            course['folders'] = get_course_folders(course['name'], course['id'])
-            course['modules'] = get_course_modules(course['name'], course['id'])
+            course['folders'] = canvas.get_course_folders(course['name'], course['id'])
+            course['modules'] = canvas.get_course_modules(course['name'], course['id'])
 
             # create module folder structure
             if course['modules']:
@@ -71,20 +72,6 @@ def pretty(d, indent=0):
       else:
          print('\t' * (indent+1) + str(value))
 
-def get_course_folders(course_name, course_id):
-    folders_url = base_url + api_version + 'courses/' + str(course_id) + '/folders'
-    folders = get_paginated(folders_url)
-    for folder in folders:
-        folder['files'] = get_paginated(base_url + api_version + 'folders/' + str(folder['id']) + '/files')
-    return folders
-
-def get_course_modules(course_name, course_id):
-    module_url = base_url + api_version + 'courses/' + str(course_id) + '/modules'
-    modules = get_paginated(module_url)
-    for module in modules:
-        module['items'] = get_paginated(module_url + '/' + str(module['id']) + '/items')
-    return modules
-
 
 def make_folder(dir):
     try:
@@ -107,38 +94,6 @@ def format_filename(s):
     filename = ''.join(c for c in s if c in valid_chars)
     filename = filename.replace(' ','_') # I don't like spaces in filenames.
     return filename
-
-def check_response(response):
-    # 1. Test if response body contains sth.
-    if not response.text:
-        return False
-
-    # 2. Handle error if deserialization fails (because of no text or bad format)
-    try:
-        responses = response.json()
-        # ...
-    except ValueError:
-        # no JSON returned
-        return False
-
-    # 3. check that .json() did NOT return an empty dict
-    if not responses:
-        return False
-
-    return True
-
-def get_paginated(url, page=None):
-    if page == None:
-        response = reqs.get(url, headers=headers)
-        page = 1
-    else:
-        response = reqs.get(url, headers=headers, params={'page': page})
-    
-    if response.status_code == 200 and check_response(response):
-        data = json.loads(response.text)
-        return data + get_paginated(url, page=page+1)
-    else:
-        return list()
 
 def get_filename_from_cd(cd):
     """
