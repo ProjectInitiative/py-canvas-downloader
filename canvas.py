@@ -11,7 +11,10 @@ class Canvas:
     def __init__(self, base_url=None, **kwargs):
         if not validators.url(base_url):
             raise Exception('MalformedURLError','error URL malformed')
-        self.base_url = base_url
+        if base_url[-1] != '/':
+            self.base_url = ''.join([base_url,'/api/v1/'])
+        else:
+            self.base_url = ''.join([base_url,'api/v1/'])
         
         if not all (k in kwargs.keys() for k in ('username','password')):
             if not 'access_token' in kwargs.keys():

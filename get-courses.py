@@ -1,28 +1,38 @@
 #!/usr/bin/env python3
 
-import os
-import re
-import pathlib
+import os, re, pathlib, json, string, keyring, argparse
 import requests as reqs
 from os.path import join, dirname
-from dotenv import load_dotenv
-import json
-import string
+from configparser import ConfigParser
+
 from canvas import Canvas
+from config import get_config
 
-dotenv_path = join(dirname(__file__), 'variables.env')
-load_dotenv(dotenv_path)
 
-access_token = os.environ.get('ACCESS_TOKEN')
-
-headers = {'Authorization': str('Bearer ' + access_token)}
-base_url = ''.join([os.environ.get('CANVAS_LMS_SERVER'), '/api/v1/'])
 
 root_path = os.path.join(os.getcwd(), 'courses')
+home = str(pathlib.Path.home())
+config_file = os.path.join(home, '.config', 'canvas-downloader', 'config.ini')
 
 def main():
+    #TODO: add in the ability to add multiple servers
+    parser = argparse.ArgumentParser(description='download data from a canvas server')
+    parser.add_argument('--nocache', '-n',
+                    action='store_true',
+                    help='run program with no cached data')
+    parser.add_argument('--verbose', '-v',
+                    action='store_true',
+                    help='verbosely run program')
+    
 
-    canvas = Canvas(base_url, access_token=access_token)
+    options = parser.parse_args()
+    if options.nocache:
+        configs = get_config(cacheless=True)
+    else:
+        configs = get_config()
+
+    access_token = keyring.get_password('system', configs.get('main', 'server_name'))
+    canvas = Canvas(configs.get('main', 'base_url'), access_token=access_token)
 
     # get all courses
     courses_list = canvas.get_courses()
@@ -30,7 +40,8 @@ def main():
     for course in courses_list:
         if 'name' in course.keys() and 'id' in course:
             print('Course: ' + course['name'])
-            
+            continue
+
             # get all modules and folders in each course
             course['folders'] = canvas.get_course_folders(course['name'], course['id'])
             course['modules'] = canvas.get_course_modules(course['name'], course['id'])
@@ -63,14 +74,6 @@ def main():
                                 print('\t\t File: ' + filename)
                                 write_file(item['url'], folder_path, format_filename(filename))
     
-                
-def pretty(d, indent=0):
-   for key, value in d.items():
-      print('\t' * indent + str(key))
-      if isinstance(value, dict):
-         pretty(value, indent+1)
-      else:
-         print('\t' * (indent+1) + str(value))
 
 
 def make_folder(dir):

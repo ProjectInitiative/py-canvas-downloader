@@ -5,11 +5,13 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+pyinstaller = "*"
 
 [packages]
 requests = "*"
 python-dotenv = "*"
 validators = "*"
+keyring = "*"
 
 [requires]
 python_version = "3.8"
