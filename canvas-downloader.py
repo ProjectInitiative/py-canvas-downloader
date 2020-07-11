@@ -8,18 +8,34 @@ from configparser import ConfigParser
 from canvas import Canvas
 from config import get_config
 
-
+if os.name == 'nt':
+    from keyring.backends import Windows
+    keyring.set_keyring(Windows.WinVaultKeyring())
 
 root_path = os.path.join(os.getcwd(), 'courses')
 home = str(pathlib.Path.home())
 config_file = os.path.join(home, '.config', 'canvas-downloader', 'config.ini')
 
 def main():
+    global root_path
+    global home
+    global config_file
+
+
     #TODO: add in the ability to add multiple servers
     parser = argparse.ArgumentParser(description='download data from a canvas server')
+    parser.add_argument('--output', '-o',
+                    dest='output_path',
+                    help='output course files to specified directory')
     parser.add_argument('--nocache', '-n',
                     action='store_true',
                     help='run program with no cached data')
+    parser.add_argument('--nomodules', '-m',
+                    action='store_true',
+                    help='run program without downloading modules')
+    parser.add_argument('--nofiles', '-f',
+                    action='store_true',
+                    help='run program with downloading files and folders')
     parser.add_argument('--verbose', '-v',
                     action='store_true',
                     help='verbosely run program')
@@ -31,6 +47,17 @@ def main():
     else:
         configs = get_config()
 
+    if options.output_path != None:
+        if os.path.isdir(options.output_path):
+            root_path = os.path.join(os.path.abspath(options.output_path), 'courses')
+        else:
+            raise argparse.ArgumentTypeError(f"readable_dir:{options.output_path} is not a valid path")
+
+    if options.nofiles and options.nomodules:
+        exit(0)
+
+
+
     access_token = keyring.get_password('system', configs.get('main', 'server_name'))
     canvas = Canvas(configs.get('main', 'base_url'), access_token=access_token)
 
@@ -39,41 +66,49 @@ def main():
 
     for course in courses_list:
         if 'name' in course.keys() and 'id' in course:
-            print('Course: ' + course['name'])
-            continue
+            print('Course: ' + course_name(course))
 
             # get all modules and folders in each course
-            course['folders'] = canvas.get_course_folders(course['name'], course['id'])
-            course['modules'] = canvas.get_course_modules(course['name'], course['id'])
+            course['folders'] = canvas.get_course_folders(course['id'])
+            course['modules'] = canvas.get_course_modules(course['id'])
 
             # create module folder structure
-            if course['modules']:
+            if course['modules'] and not options.nomodules:
                 for module in course['modules']:
                     if 'name' in module.keys():
                         print('\tModule: ' + module['name'])
-                        module_path = os.path.join(root_path, format_filename(course['name']), 'modules', format_filename(module['name']))
+                        module_path = os.path.join(root_path, format_filename(course_name(course)), 'modules', format_filename(module['name']))
                         make_folder(module_path)
+                        module['items'] = canvas.get_module_items(module['items_url'])
                         # module['files'] = get_paginated(module['items_url'])
                         # for item in module_path['files']: 
                             # write_file(item[''], module_path)
             
             # create file folder structure
-            if course['folders']:
+            if course['folders'] and not options.nofiles:
                 for folder in course['folders']:
                     if 'name' in folder.keys():
                         print('\tFolder: ' + folder['name'])
-                        folder_path = os.path.join(root_path, format_filename(course['name']), 'files', format_filename(folder['name']))
+                        folder_path = os.path.join(root_path, format_filename(course_name(course)), 'files', format_filename(folder['name']))
                         make_folder(folder_path)
-                        folder['files'] = get_paginated(folder['files_url'])
+                        folder['files'] = canvas.get_folder_files(folder['files_url'])
                         
                         for item in folder['files']:
                             filename = item['display_name']
                             if os.path.isfile(os.path.join(folder_path, format_filename(filename))):
-                                print ('\t\t File: skipping ' + filename + " already exists")
+                                if options.verbose:
+                                    print ('\t\t File: skipping ' + filename + " already exists")
                             else:
-                                print('\t\t File: ' + filename)
+                                if options.verbose:
+                                    print('\t\t File: ' + filename)
                                 write_file(item['url'], folder_path, format_filename(filename))
     
+
+def course_name(course):
+    name = course['original_name']
+    if name == None:
+        return course['name']
+    return name
 
 
 def make_folder(dir):

@@ -32,19 +32,25 @@ class Canvas:
         courses_url = ''.join([self.base_url, 'courses/'])
         return self.get_paginated(courses_url)
 
-    def get_course_folders(self, course_name, course_id):
-        folders_url = ''.join(['courses/', str(course_id), '/folders/'])
+    def get_course_folders(self, course_id):
+        folders_url = ''.join([self.base_url, 'courses/', str(course_id), '/folders/'])
         folders = self.get_paginated(folders_url)
         for folder in folders:
             folder['files'] = self.get_paginated(''.join([str(folders_url), str(folder['id']), '/files']))
         return folders
 
-    def get_course_modules(self, course_name, course_id):
+    def get_folder_files(self, folder_url):
+        return self.get_paginated(folder_url)
+
+    def get_course_modules(self, course_id):
         module_url = ''.join([self.base_url, 'courses/', str(course_id), '/modules/'])
         modules = self.get_paginated(module_url)
         for module in modules:
             module['items'] = self.get_paginated(''.join([module_url, str(module['id']), '/items']))
         return modules
+
+    def get_module_items(self, course_id):
+        pass
 
     def get_paginated(self, url, page=None):
         if page == None:

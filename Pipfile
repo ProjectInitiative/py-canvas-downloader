@@ -12,6 +12,7 @@ requests = "*"
 python-dotenv = "*"
 validators = "*"
 keyring = "*"
+pypiwin32 = "*"
 
 [requires]
 python_version = "3.8"

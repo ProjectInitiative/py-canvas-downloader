@@ -43,7 +43,7 @@ python ./get-courses.py
 
 > DISCLAIMER: **Read your University's Terms of Service before using.** 
 > **I HAVE YET TO IMPLEMENT PROPER API RATE LIMITING! RUN AT YOUR OWN RISK!**
-> Since the program does not make any parallel API calls, I have not experienced any API quota locks while running two instances of the program one two different computers from my univeristy, **BUT** there is still a risk that you lock yourself out of your account and will need to contact IT!
+> Since the program does not make any parallel API calls, I have not experienced any API quota locks while running two instances of the program one two different computers from my university, **BUT** there is still a risk that you lock yourself out of your account and will need to contact IT!
 
 This script is a quick and dirty implementation focusing on trying to get as much data as possible before losing access to the university Canvas site. If the program crashes or you stop it prematurely, the program should pick back up where it left off. 
 

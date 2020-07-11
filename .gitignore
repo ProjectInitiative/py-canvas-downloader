@@ -7,6 +7,10 @@
 *.dll
 *.so
 *.dylib
+*build
+*dist
+*spec
+*.pyo
 
 # Test binary, built with `go test -c`
 *.test
@@ -17,6 +21,6 @@
 # Dependency directories (remove the comment below to include it)
 vendor/
 
-*courses/
+*courses*
 
 *__pycache__

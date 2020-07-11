@@ -1,0 +1,29 @@
+pipeline {
+    agent none
+    stages {
+        stage('Build on Linux') {
+            agent { 
+                label 'linux'
+            }
+            steps { 
+                bash '$ENV:WORKSPACE/ci/build.sh'
+            }
+        }
+        stage('Build on Windows') {
+            agent {
+                label 'windows'
+            }
+            steps {
+                powershell '$ENV:WORKSPACE/ci/build.ps1' 
+            }
+        }
+        stage('Build on MacOS') {
+            agent {
+                label 'osx'
+            }
+            steps {
+                zsh '' 
+            }
+        }
+    }
+}
